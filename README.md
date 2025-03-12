@@ -1,36 +1,196 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Docker Setup Guide for Your Node.js Application
 
-## Getting Started
+This guide provides step-by-step instructions to build and run your **Node.js** application using Docker.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Before you begin, ensure you have the following installed:
+
+- [Docker](https://www.docker.com/get-started)
+- Basic knowledge of terminal/command prompt
+
+---
+
+## **Dockerizing a Node.js Application**
+
+This guide covers two methods:
+
+1. **Using Ubuntu and manually installing Node.js**
+2. **Using the official Node.js image** (Recommended)
+
+---
+
+## **1. Using Ubuntu and Installing Node.js Manually**
+
+If you prefer a base **Ubuntu** image and want to manually install Node.js, use the following `Dockerfile`:
+
+### **Dockerfile (Manual Node.js Installation)**
+
+```dockerfile
+# Start with Ubuntu as the base image
+FROM ubuntu:latest
+
+# Set the working directory
+WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
+
+# Copy application files
+COPY . .
+
+# Expose the application port
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "start"]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Build & Run**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+# Build the Docker image
+docker build -t my-node-app .
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Run the container
+docker run -d -p 3000:3000 --name my-app my-node-app
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## **2. Using the Official Node.js Image (Recommended)**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A better approach is to use the official **Node.js** image, which simplifies setup and ensures a stable environment.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### **Dockerfile (Using Node.js Image)**
 
-## Deploy on Vercel
+```dockerfile
+# Use the official Node.js image
+FROM node:18
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Set the working directory
+WORKDIR /app
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Copy package.json and package-lock.json first (leveraging Docker cache)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application
+COPY . .
+
+# Expose the application port
+EXPOSE 3000
+
+# Start the application
+CMD ["npm", "start"]
+```
+
+### **Build & Run**
+
+```sh
+# Build the Docker image
+docker build -t my-node-app .
+
+# Run the container
+docker run -d -p 3000:3000 --name my-app my-node-app
+```
+
+---
+
+## **Steps to Run the Application with Docker**
+
+### **1. Build the Docker Image**
+
+```sh
+docker build -t my-app .
+```
+
+- `-t my-app`: Tags the image with the name `my-app`
+- `.`: Uses the current directory as the build context
+
+### **2. Run the Docker Container**
+
+```sh
+docker run -d -p 3000:3000 --name my-container my-app
+```
+
+- `-d`: Runs the container in detached mode
+- `-p 3000:3000`: Maps port 3000 of the container to port 3000 on the host
+- `--name my-container`: Names the running container `my-container`
+- `my-app`: The image name
+
+### **3. Check Running Containers**
+
+```sh
+docker ps
+```
+
+To see all containers (including stopped ones):
+
+```sh
+docker ps -a
+```
+
+### **4. Access the Application**
+
+Once the container is running, you can access the application in your browser at:
+
+```
+http://localhost:3000
+```
+
+### **5. Stop and Remove the Container**
+
+```sh
+docker stop my-container
+```
+
+To remove the stopped container:
+
+```sh
+docker rm my-container
+```
+
+To remove the image:
+
+```sh
+docker rmi my-app
+```
+
+---
+
+## **Additional Commands**
+
+### **View Logs of a Running Container**
+
+```sh
+docker logs my-container
+```
+
+### **Enter the Running Container**
+
+```sh
+docker exec -it my-container bash
+```
+
+### **Remove All Unused Docker Resources**
+
+```sh
+docker system prune -a
+```
+
+---
+
+## **Conclusion**
+
+You have successfully set up a Docker container for your application. 🚀
+
+For further customization, refer to the [Docker documentation](https://docs.docker.com/).
