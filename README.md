@@ -105,80 +105,93 @@ docker run -d -p 3000:3000 --name my-app my-node-app
 
 ---
 
-## **Steps to Run the Application with Docker**
+## **Running the Application with Docker Compose**
 
-### **1. Build the Docker Image**
+Docker Compose allows managing multiple containers (frontend, backend, database) with a single command.
 
-```sh
-docker build -t my-app .
+### **docker-compose.yaml**
+
+```yaml
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    container_name: my-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    container_name: my-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+volumes:
+  mongo-data:
 ```
 
-- `-t my-app`: Tags the image with the name `my-app`
-- `.`: Uses the current directory as the build context
-
-### **2. Run the Docker Container**
+### **Build & Run with Docker Compose**
 
 ```sh
-docker run -d -p 3000:3000 --name my-container my-app
+# Build and start containers
+docker compose up -d --build
 ```
 
-- `-d`: Runs the container in detached mode
-- `-p 3000:3000`: Maps port 3000 of the container to port 3000 on the host
-- `--name my-container`: Names the running container `my-container`
-- `my-app`: The image name
+- `-d`: Runs containers in detached mode
+- `--build`: Forces a rebuild of the images
 
-### **3. Check Running Containers**
+### **Check Running Containers**
 
 ```sh
 docker ps
 ```
 
-To see all containers (including stopped ones):
+### **Stop & Remove Containers**
 
 ```sh
-docker ps -a
+docker compose down
 ```
 
-### **4. Access the Application**
+To remove all volumes and images:
 
-Once the container is running, you can access the application in your browser at:
+```sh
+docker compose down --rmi all --volumes
+```
+
+### **Access the Application**
+
+Once running, access your application at:
 
 ```
 http://localhost:3000
 ```
 
-### **5. Stop and Remove the Container**
-
-```sh
-docker stop my-container
-```
-
-To remove the stopped container:
-
-```sh
-docker rm my-container
-```
-
-To remove the image:
-
-```sh
-docker rmi my-app
-```
-
 ---
 
-## **Additional Commands**
+## **Additional Docker Commands**
 
 ### **View Logs of a Running Container**
 
 ```sh
-docker logs my-container
+docker logs my-backend
 ```
 
 ### **Enter the Running Container**
 
 ```sh
-docker exec -it my-container bash
+docker exec -it my-backend bash
 ```
 
 ### **Remove All Unused Docker Resources**
@@ -191,6 +204,6 @@ docker system prune -a
 
 ## **Conclusion**
 
-You have successfully set up a Docker container for your application. 🚀
+You have successfully set up a Docker container for your application using **Docker Compose**. 🚀
 
 For further customization, refer to the [Docker documentation](https://docs.docker.com/).
