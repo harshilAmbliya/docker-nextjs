@@ -1,0 +1,30 @@
+services:
+  frontend:
+    container_name: next-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    # depends_on:
+    #   - backend
+    env_file:
+      - .env
+  # Backend API URL for frontend
+  # backend:
+  #   container_name: nodejs-backend
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5000:5000"
+  #   env_file:
+  #     - .env
+
+  # mongodb:
+  #   container_name: mongodb
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
+  #   env_file:
+  #     - .env
