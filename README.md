@@ -1,4 +1,4 @@
-# Docker Setup Guide for Your Node.js Application
+# Docker Setup Guide for Your Node.js scalable Application
 
 This guide provides step-by-step instructions to build and run your **Node.js** application using Docker.
 
